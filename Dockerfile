@@ -1,10 +1,10 @@
-ARG PACKAGE_NAME=github.com/syucream/hakagi.git
+ARG PACKAGE_NAME=github.com/syucream/hakagi
 
 FROM golang:1.14.3-alpine3.11
 ARG PACKAGE_NAME
 
 RUN apk --no-cache add make git curl
-RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+RUN go get -u github.com/golang/dep/cmd/dep
 
 COPY . /go/src/$PACKAGE_NAME
 RUN cd /go/src/$PACKAGE_NAME && make dep && make
