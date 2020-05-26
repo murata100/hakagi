@@ -23,6 +23,25 @@ WHERE
   STATISTICS.INDEX_NAME != 'PRIMARY' AND
   STATISTICS.TABLE_SCHEMA IN (?);
 `
+	columnsQueryBase = `SELECT
+  COLUMNS.TABLE_NAME,
+  IFNULL((SELECT
+            STATISTICS.INDEX_NAME
+          FROM
+            STATISTICS
+		  WHERE
+            STATISTICS.TABLE_NAME = COLUMNS.TABLE_NAME AND
+		    STATISTICS.COLUMN_NAME = COLUMNS.COLUMN_NAME AND
+		    STATISTICS.TABLE_SCHEMA = COLUMNS.TABLE_SCHEMA
+		  LIMIT 1
+          ), '') AS INDEX_NAME,
+  COLUMNS.COLUMN_NAME,
+  COLUMNS.COLUMN_TYPE
+FROM
+  COLUMNS
+WHERE
+  COLUMNS.TABLE_SCHEMA IN (?);
+`
 	primaryConstraintQueryBase = `SELECT
   KEY_COLUMN_USAGE.TABLE_NAME, KEY_COLUMN_USAGE.COLUMN_NAME, COLUMNS.COLUMN_TYPE
 FROM
@@ -56,8 +75,14 @@ func ConnectDatabase(user string, pass string, host string, port int) (*sql.DB, 
 	return sql.Open("mysql", dbUri)
 }
 
-func FetchSchemas(db *sql.DB, targets []string) (Indexes, error) {
-	query, args, err := sqlx.In(indexesQueryBase, targets)
+func FetchSchemas(db *sql.DB, targets []string, isIndexesQueryBase bool) (Indexes, error) {
+	queryBase := ""
+	if isIndexesQueryBase {
+		queryBase = indexesQueryBase
+	} else {
+		queryBase = columnsQueryBase
+	}
+	query, args, err := sqlx.In(queryBase, targets)
 	if err != nil {
 		return nil, err
 	}
@@ -75,6 +100,13 @@ func FetchSchemas(db *sql.DB, targets []string) (Indexes, error) {
 			return nil, err
 		}
 
+		if !isIndexesQueryBase {
+			if indexName == "PRIMARY" {
+				continue
+			} else {
+				indexName = "__" + tableName + "_" + columnName
+			}
+		}
 		if ct, tableOk := indexes[tableName]; tableOk {
 			if ci, indexOk := ct[indexName]; indexOk {
 				ct[indexName] = append(ci, Column{columnName, columnType})

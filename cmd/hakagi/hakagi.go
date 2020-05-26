@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"strings"
 
@@ -26,6 +27,11 @@ func main() {
 	targets := flag.String("targets", "", "analysing target databases(comma-separated)")
 	rules := flag.String("rules", "primarykey,tableandcolumn", "analysing rules(comma-separated)")
 
+	format := flag.String("format", "sql", "output format(sql / xml)")
+	qBase := flag.String("qbase", "indexes", "query base(indexes / columns)")
+	output := flag.String("output", "", "output to file")
+	cTypes := flag.String("ctypes", "", "compatible types(idtype:columntype)")
+
 	flag.Parse()
 
 	db, err := database.ConnectDatabase(*dbUser, *dbPass, *dbHost, *dbPort)
@@ -33,8 +39,16 @@ func main() {
 		log.Fatalf("Failed to connect database : %v", err)
 	}
 
+	isIndexesQueryBase := true
+	if *qBase == "indexes" {
+		isIndexesQueryBase = true
+	} else if *qBase == "columns" {
+		isIndexesQueryBase = false
+	} else {
+		log.Fatalf("Unknown query base")
+	}
 	targetSlice := strings.Split(*targets, ",")
-	schemas, err := database.FetchSchemas(db, targetSlice)
+	schemas, err := database.FetchSchemas(db, targetSlice, isIndexesQueryBase)
 	if err != nil {
 		log.Fatalf("Failed to fetch schemas : %v", err)
 	}
@@ -49,8 +63,24 @@ func main() {
 			guessers = append(guessers, guesser)
 		}
 	}
-	constraints := guess.GuessConstraints(schemas, primaryKeys, guessers...)
+	compatibleTypes := strings.Split(*cTypes, ":")
+	constraints := guess.GuessConstraints(schemas, primaryKeys, compatibleTypes, guessers...)
 
-	alterQuery := formatter.FormatSql(constraints)
-	fmt.Println(alterQuery)
+	outputText := ""
+	if *format == "sql" {
+		outputText = formatter.FormatSql(constraints)
+	} else if *format == "xml" {
+		outputText = formatter.FormatXML(constraints)
+	} else {
+		log.Fatalf("Unknown output format")
+	}
+
+	if *output == "" {
+		fmt.Println(outputText)
+	} else {
+		err := ioutil.WriteFile(*output, ([]byte)(outputText), 0666)
+		if err != nil {
+			log.Fatalf("Failed to write : %v", err)
+		}
+	}
 }
