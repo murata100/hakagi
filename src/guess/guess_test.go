@@ -3,7 +3,7 @@ package guess
 import (
 	"testing"
 
-	"github.com/syucream/hakagi/src/database"
+	"github.com/murata100/hakagi/src/database"
 )
 
 func TestGuessByPrimaryKey(t *testing.T) {

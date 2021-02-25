@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/syucream/hakagi/src/database"
-	"github.com/syucream/hakagi/src/formatter"
-	"github.com/syucream/hakagi/src/guess"
+	"github.com/murata100/hakagi/src/database"
+	"github.com/murata100/hakagi/src/formatter"
+	"github.com/murata100/hakagi/src/guess"
 )
 
 var ruleToGuesser = map[string]guess.GuessOption{

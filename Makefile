@@ -11,7 +11,7 @@ cmd:
 
 .PHONY: test
 test:
-	go test github.com/syucream/hakagi/...
+	go test github.com/murata100/hakagi/...
 
 # Set GITHUB_TOKEN personal access token and create release git tag
 .PHONY: release

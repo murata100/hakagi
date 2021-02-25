@@ -1,13 +1,13 @@
 # hakagi
 
-[![CircleCI](https://circleci.com/gh/syucream/hakagi.svg?style=svg)](https://circleci.com/gh/syucream/hakagi)
+[![CircleCI](https://circleci.com/gh/murata100/hakagi.svg?style=svg)](https://circleci.com/gh/murata100/hakagi)
 
 HAKAGI(葉鍵, Leaf and Key) is RDB analyzer that detects implicit foreign key constraints and others to support ER diagram auto-generation
 
 ## Installation
 
 ```
-$ go get -u github.com/syucream/hakagi/cmd/hakagi
+$ go get -u github.com/murata100/hakagi/cmd/hakagi
 ```
 
 ## Usage

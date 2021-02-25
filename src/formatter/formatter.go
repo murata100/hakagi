@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/syucream/hakagi/src/constraint"
+	"github.com/murata100/hakagi/src/constraint"
 )
 
 const (

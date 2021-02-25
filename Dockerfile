@@ -1,6 +1,6 @@
-ARG PACKAGE_NAME=github.com/syucream/hakagi
+ARG PACKAGE_NAME=github.com/murata100/hakagi
 
-FROM golang:1.14.3-alpine3.11
+FROM golang:1.13.15-alpine3.11
 ARG PACKAGE_NAME
 
 RUN apk --no-cache add make git curl
@@ -12,4 +12,4 @@ RUN cp /go/src/$PACKAGE_NAME/hakagi /bin/.
 
 CMD hakagi
 
-# sh -c "apk --no-cache add libc-dev gcc && cd /go/src/github.com/syucream/hakagi && make test"
+# sh -c "apk --no-cache add libc-dev gcc && cd /go/src/github.com/murata100/hakagi && make test"
